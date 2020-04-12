@@ -10,5 +10,5 @@ RUN pip3 install UUID
 RUN pip3 install redis
 RUN pip3 install schedule
 
-COPY ChromecastIPWatcher.py /home/
-ENTRYPOINT [ "python3" , "/home/ChromecastIPWatcher.py" ]
+COPY ChromecastDataWatcher.py /home/
+ENTRYPOINT [ "python3" , "/home/ChromecastDataWatcher.py" ]
