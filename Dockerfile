@@ -9,6 +9,7 @@ RUN pip3 install pathlib
 RUN pip3 install UUID
 RUN pip3 install redis
 RUN pip3 install schedule
+RUN pip3 install pprint
 
 COPY ChromecastDataWatcher.py /home/
 ENTRYPOINT [ "python3" , "/home/ChromecastDataWatcher.py" ]

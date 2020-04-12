@@ -2,6 +2,7 @@ import sys
 import os
 import time
 import json
+from pprint import pprint
 from uuid import UUID
 from pathlib import Path
 import redis
@@ -39,7 +40,7 @@ class StatusListener:
 		self.uuid = uuid
 		self.redis_connection = redis_connection
 	def new_cast_status( self , status ):
-		print( '[' , time.ctime() , ' - ' , self.name , '] status chromecast change:' )
+		#print( '[' , time.ctime() , ' - ' , self.name , '] status chromecast change:' )
 		#print( status )
 		try:
 			key = "STATUS.UUIDS." + self.uuid
@@ -60,7 +61,7 @@ class StatusListener:
 					"icon_url": status.icon_url ,
 				}
 			}
-			print( db_object )
+			pprint( db_object )
 			db_object = json.dumps( db_object )
 			self.redis_connection.set( key , db_object )
 			self.redis_connection.publish( "STATUS" , db_object )
@@ -75,7 +76,7 @@ class StatusMediaListener:
 		self.uuid = uuid
 		self.redis_connection = redis_connection
 	def new_media_status( self , status ):
-		print( '[' , time.ctime() , ' - ' , self.name , '] status media change:' )
+		#print( '[' , time.ctime() , ' - ' , self.name , '] status media change:' )
 		#print( status )
 		try:
 			key = "STATUS.MEDIA.UUIDS." + self.uuid
@@ -111,16 +112,12 @@ class StatusMediaListener:
 					"volume_level": status.volume_level ,
 					"volume_muted": status.volume_muted ,
 					"media_custom_data": status.media_custom_data ,
-					"media_metadata": {
-						"metadataType": status.media_metadata[ 'metadataType' ] ,
-						"title": status.media_metadata[ 'title' ] ,
-						"subtitle": status.media_metadata[ 'subtitle' ] ,
-						"images": status.media_metadata[ 'images' ] ,
-					} ,
+					"media_metadata": status.media_metadata ,
 					"current_subtitle_tracks": status.current_subtitle_tracks ,
 					"last_updated": str( status.last_updated )
 				}
 			}
+			pprint( db_object )
 			db_object = json.dumps( db_object )
 			self.redis_connection.set( key , db_object )
 			self.redis_connection.publish( "STATUS-MEDIA" , db_object )
