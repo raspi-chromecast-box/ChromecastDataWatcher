@@ -19,5 +19,5 @@ fi
 #echo "$NextCommitNumber"
 git add .
 git commit -m "$NextCommitNumber"
-git remote add origin git@github.com:raspi-chromecast-box/WebServer.git
+git remote add origin git@github.com:raspi-chromecast-box/ChromecastDataWatcher.git
 git push origin master
