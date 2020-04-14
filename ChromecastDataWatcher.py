@@ -43,7 +43,7 @@ class StatusListener:
 		#print( '[' , time.ctime() , ' - ' , self.name , '] status chromecast change:' )
 		#print( status )
 		try:
-			key = "STATUS.UUIDS." + self.uuid
+			key = "STATE.UUIDS." + self.uuid
 			db_object = {
 				"uuid": self.uuid ,
 				"name": self.name ,
@@ -64,7 +64,7 @@ class StatusListener:
 			pprint( db_object )
 			db_object = json.dumps( db_object )
 			self.redis_connection.set( key , db_object )
-			self.redis_connection.publish( "STATUS" , db_object )
+			self.redis_connection.publish( "STATE" , db_object )
 		except Exception as e:
 			print( "Couldn't Publish to Redis Channel" )
 			print( e )
@@ -79,7 +79,7 @@ class StatusMediaListener:
 		#print( '[' , time.ctime() , ' - ' , self.name , '] status media change:' )
 		#print( status )
 		try:
-			key = "STATUS.MEDIA.UUIDS." + self.uuid
+			key = "STATE.MEDIA.UUIDS." + self.uuid
 			db_object = {
 				"uuid": self.uuid ,
 				"name": self.name ,
