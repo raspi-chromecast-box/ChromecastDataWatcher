@@ -164,7 +164,7 @@ function save_status_backdrop( tracking_object ) {
 }
 
 function save_status_youtube( tracking_object ) {
-	return new Promise( ( resolve , reject ) => {
+	return new Promise( async ( resolve , reject ) => {
 		try {
 			if ( !tracking_object ) { resolve(); return; }
 			const redis_key = `APPS.YOUTUBE.STATUSES.${ tracking_object[ "uuid_redis_key" ] }`;
@@ -188,7 +188,7 @@ function save_status_youtube( tracking_object ) {
 }
 
 function save_status_disney_plus( tracking_object ) {
-	return new Promise( ( resolve , reject ) => {
+	return new Promise( async ( resolve , reject ) => {
 		try {
 			if ( !tracking_object ) { resolve(); return; }
 			const redis_key = `APPS.DISNEY_PLUS.STATUSES.${ tracking_object[ "uuid_redis_key" ] }`;
@@ -486,6 +486,7 @@ async function one_hot_join_session_zero_and_listen_for_statuses( tracking_objec
 			console.log( "the player closed" );
 			console.log( "aka the session ended, we need to rescan for sessions and rejoin" );
 			EventEmitter.emit( "player-closed" , tracking_object );
+			return;
 		});
 
 	}
