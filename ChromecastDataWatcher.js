@@ -163,6 +163,22 @@ function save_status_backdrop( tracking_object ) {
 	});
 }
 
+function save_status_generic( tracking_object ) {
+	return new Promise( ( resolve , reject ) => {
+		try {
+			if ( !tracking_object ) { resolve(); return; }
+			const redis_key = `APPS.GENERIC.STATUSES.${ tracking_object[ "uuid_redis_key" ] }`;
+			let db_object = { app: "generic" , ...tracking_object.latest_status };
+			db_object = JSON.stringify( db_object );
+			await RedisPushPopToCircularListLength100( redis_key , db_object );
+			await redis_manager.redis.publish( "APPS-STATUSES" , db_object );
+			resolve();
+			return;
+		}
+		catch( error ) { console.log( error ); reject( error ); return; }
+	});
+}
+
 function save_status_youtube( tracking_object ) {
 	return new Promise( async ( resolve , reject ) => {
 		try {
@@ -172,11 +188,9 @@ function save_status_youtube( tracking_object ) {
 			// TODO
 			// =================================
 			// const status = tracking_object.latest_status;
-			// let db_object = {};
+			let db_object = { app: "youtube" , ...tracking_object.latest_status };
 			// console.log( db_object );
-			// db_object = JSON.stringify( db_object );
-
-			const db_object = JSON.stringify( tracking_object.latest_status );
+			db_object = JSON.stringify( db_object );
 
 			await RedisPushPopToCircularListLength100( redis_key , db_object );
 			await redis_manager.redis.publish( "APPS-STATUSES" , db_object );
@@ -196,11 +210,10 @@ function save_status_disney_plus( tracking_object ) {
 			// TODO
 			// =================================
 			// const status = tracking_object.latest_status;
-			// let db_object = {};
+			let db_object = { app: "disney_plus" , ...tracking_object.latest_status };
 			// console.log( db_object );
-			// db_object = JSON.stringify( db_object );
+			db_object = JSON.stringify( db_object );
 
-			const db_object = JSON.stringify( tracking_object.latest_status );
 
 			await RedisPushPopToCircularListLength100( redis_key , db_object );
 			await redis_manager.redis.publish( "APPS-STATUSES" , db_object );
@@ -217,7 +230,7 @@ function save_status_spotify( tracking_object ) {
 			if ( !tracking_object ) { resolve(); return; }
 			const redis_key = `APPS.SPOTIFY.STATUSES.${ tracking_object[ "uuid_redis_key" ] }`;
 			const status = tracking_object.latest_status;
-			let db_object = {};
+			let db_object = { app: "spotify" };
 
 			if ( !!status.statusText ) {
 				db_object.status_text = status.statusText
@@ -329,7 +342,7 @@ function save_status_twitch( tracking_object ) {
 			if ( !tracking_object ) { resolve(); return; }
 			const redis_key = `APPS.TWITCH.STATUSES.${ tracking_object[ "uuid_redis_key" ] }`;
 			const status = tracking_object.latest_status;
-			let db_object = {};
+			let db_object = { app: "twitch" };
 			if ( !!status.statusText ) {
 				db_object.status_text = status.statusText
 			}
@@ -426,6 +439,7 @@ function save_status( tracking_object ) {
 					console.log( `Unknown App ID: ${ tracking_object[ "session" ][ "appId" ] }` );
 					console.log( `App Name == ${ tracking_object[ "session" ][ "displayName" ] }` );
 					console.log( tracking_object.latest_status );
+					await save_status_generic( tracking_object )
 					break;
 			}
 			resolve();
