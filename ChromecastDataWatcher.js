@@ -146,7 +146,7 @@ function get_status( player ) {
 }
 
 function save_status_backdrop( tracking_object ) {
-	return new Promise( ( resolve , reject ) => {
+	return new Promise( async ( resolve , reject ) => {
 		try {
 			// if ( !tracking_object ) { resolve(); return; }
 			// const redis_key = `APPS.SPOTIFY.STATUSES.${ tracking_object[ "uuid_redis_key" ] }`;
@@ -164,7 +164,7 @@ function save_status_backdrop( tracking_object ) {
 }
 
 function save_status_generic( tracking_object ) {
-	return new Promise( ( resolve , reject ) => {
+	return new Promise( async ( resolve , reject ) => {
 		try {
 			if ( !tracking_object ) { resolve(); return; }
 			const redis_key = `APPS.GENERIC.STATUSES.${ tracking_object[ "uuid_redis_key" ] }`;
