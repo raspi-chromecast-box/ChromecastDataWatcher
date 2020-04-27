@@ -1,12 +1,10 @@
 FROM node:latest
 
+RUN npm install castv2-client -g
+RUN npm install events -g
+RUN npm install redis-manager-utils -g
+RUN npm install bent -g
+
 COPY ChromecastDataWatcher.js /home/
-
-WORKDIR "/home/"
-
-RUN npm init -y
-RUN npm install castv2-client --save
-RUN npm install events --save
-RUN npm install redis-manager-utils --save
 
 ENTRYPOINT [ "node" , "/home/ChromecastDataWatcher.js" ]

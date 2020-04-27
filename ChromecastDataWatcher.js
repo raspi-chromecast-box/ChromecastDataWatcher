@@ -2,14 +2,16 @@ const process = require( "process" );
 const path = require( "path" );
 const exec = require( "child_process" ).exec;
 
-// const global_package_path = process.argv[ 0 ].split( "/bin/node" )[ 0 ] + "/lib/node_modules";
-// const castv2 = require( path.join( global_package_path ,  "castv2-client" ) );
-// const events = require( path.join( global_package_path ,  "events" ) );
-// const RMU = require( path.join( global_package_path , "redis-manager-utils" ) );
+const global_package_path = process.argv[ 0 ].split( "/bin/node" )[ 0 ] + "/lib/node_modules";
+const castv2 = require( path.join( global_package_path ,  "castv2-client" ) );
+const events = require( path.join( global_package_path ,  "events" ) );
+const RMU = require( path.join( global_package_path , "redis-manager-utils" ) );
+const bent = require( path.join( global_package_path , "bent" ) );
 
-const castv2 = require(  "castv2-client" );
-const events = require( "events" );
-const RMU = require( "redis-manager-utils" );
+// const castv2 = require(  "castv2-client" );
+// const events = require( "events" );
+// const RMU = require( "redis-manager-utils" );
+// const bent = require( "bent" );
 
 function sleep( ms ) { return new Promise( resolve => setTimeout( resolve , ms ) ); }
 
@@ -145,303 +147,33 @@ function get_status( player ) {
 	});
 }
 
-function save_status_backdrop( tracking_object ) {
-	return new Promise( async ( resolve , reject ) => {
-		try {
-			// if ( !tracking_object ) { resolve(); return; }
-			// const redis_key = `APPS.SPOTIFY.STATUSES.${ tracking_object[ "uuid_redis_key" ] }`;
-			// const status = tracking_object.latest_status;
-			// let db_object = {};
-			// console.log( db_object );
-			// db_object = JSON.stringify( db_object );
-			// await RedisPushPopToCircularListLength100( redis_key , db_object );
-			// await redis_manager.redis.publish( "APPS-STATUSES" , db_object );
-			resolve();
-			return;
-		}
-		catch( error ) { console.log( error ); reject( error ); return; }
-	});
-}
-
-function save_status_generic( tracking_object ) {
-	return new Promise( async ( resolve , reject ) => {
-		try {
-			if ( !tracking_object ) { resolve(); return; }
-			const redis_key = `APPS.GENERIC.STATUSES.${ tracking_object[ "uuid_redis_key" ] }`;
-			let db_object = { app: "generic" , ...tracking_object.latest_status };
-			db_object = JSON.stringify( db_object );
-			await RedisPushPopToCircularListLength100( redis_key , db_object );
-			await redis_manager.redis.publish( "APPS-STATUSES" , db_object );
-			resolve();
-			return;
-		}
-		catch( error ) { console.log( error ); reject( error ); return; }
-	});
-}
-
-function save_status_youtube( tracking_object ) {
-	return new Promise( async ( resolve , reject ) => {
-		try {
-			if ( !tracking_object ) { resolve(); return; }
-			const redis_key = `APPS.YOUTUBE.STATUSES.${ tracking_object[ "uuid_redis_key" ] }`;
-
-			// TODO
-			// =================================
-			// const status = tracking_object.latest_status;
-			let db_object = { app: "youtube" , ...tracking_object.latest_status };
-			// console.log( db_object );
-			db_object = JSON.stringify( db_object );
-
-			await RedisPushPopToCircularListLength100( redis_key , db_object );
-			await redis_manager.redis.publish( "APPS-STATUSES" , db_object );
-			resolve();
-			return;
-		}
-		catch( error ) { console.log( error ); reject( error ); return; }
-	});
-}
-
-function save_status_disney_plus( tracking_object ) {
-	return new Promise( async ( resolve , reject ) => {
-		try {
-			if ( !tracking_object ) { resolve(); return; }
-			const redis_key = `APPS.DISNEY_PLUS.STATUSES.${ tracking_object[ "uuid_redis_key" ] }`;
-
-			// TODO
-			// =================================
-			// const status = tracking_object.latest_status;
-			let db_object = { app: "disney_plus" , ...tracking_object.latest_status };
-			// console.log( db_object );
-			db_object = JSON.stringify( db_object );
-
-
-			await RedisPushPopToCircularListLength100( redis_key , db_object );
-			await redis_manager.redis.publish( "APPS-STATUSES" , db_object );
-			resolve();
-			return;
-		}
-		catch( error ) { console.log( error ); reject( error ); return; }
-	});
-}
-
-function save_status_spotify( tracking_object ) {
-	return new Promise( async ( resolve , reject ) => {
-		try {
-			if ( !tracking_object ) { resolve(); return; }
-			const redis_key = `APPS.SPOTIFY.STATUSES.${ tracking_object[ "uuid_redis_key" ] }`;
-			const status = tracking_object.latest_status;
-			let db_object = { app: "spotify" };
-
-			if ( !!status.statusText ) {
-				db_object.status_text = status.statusText
-			}
-			if ( !!status.playbackRate ) {
-				db_object.playback_rate = status.playbackRate
-			}
-			if ( !!status.playerState ) {
-				db_object.player_state = status.playerState
-			}
-			if ( !!status.currentTime ) {
-				db_object.current_time = status.currentTime;
-			}
-			if ( !!status.volume ) {
-				if ( !!status.volume.level ) {
-					db_object.volume = status.volume.level;
-				}
-				if ( status.volume.muted ) {
-					db_object.muted = status.volume.muted;
-				}
-				else {
-					db_object.muted = false;
-				}
-			}
-			if ( !!status.media ) {
-				if ( !!status.media.contentId ) {
-					db_object.uri = status.media.contentId;
-				}
-				if ( !!status.media.streamType ) {
-					db_object.stream_type = status.media.streamType;
-				}
-				if ( !!status.media.mediaCategory ) {
-					db_object.media_category = status.media.mediaCategory;
-				}
-				if ( !!status.media.contentType ) {
-					db_object.content_type = status.media.contentType;
-				}
-				if ( !!status.media.metadata ) {
-					if ( !!status.media.metadata.title ) {
-						db_object.title = status.media.metadata.title;
-					}
-					if ( !!status.media.metadata.songName ) {
-						db_object.song_name = status.media.metadata.songName;
-					}
-					if ( !!status.media.metadata.artist ) {
-						db_object.artist = status.media.metadata.artist;
-					}
-					if ( !!status.media.metadata.albumName ) {
-						db_object.album_name = status.media.metadata.albumName;
-					}
-				}
-				if ( !!status.media.duration ) {
-					db_object.duration = status.media.duration;
-				}
-			}
-			if ( !!status.repeatMode ) {
-				db_object.repeat_mode = status.repeatMode;
-			}
-			if ( !!status.extendedStatus ) {
-				if ( !!status.extendedStatus.playerState ) {
-					db_object.player_state = status.extendedStatus.playerState;
-				}
-				if ( !!status.extendedStatus.media ) {
-					if ( !!status.extendedStatus.media.contentId ) {
-						db_object.uri = status.extendedStatus.media.contentId;
-					}
-					if ( !!status.extendedStatus.media.streamType ) {
-						db_object.stream_type = status.extendedStatus.media.streamType;
-					}
-					if ( !!status.extendedStatus.media.mediaCategory ) {
-						db_object.media_category = status.extendedStatus.media.mediaCategory;
-					}
-					if ( !!status.extendedStatus.media.contentType ) {
-						db_object.content_type = status.extendedStatus.media.contentType;
-					}
-					if ( !!status.extendedStatus.media.duration ) {
-						db_object.duration = status.extendedStatus.media.duration;
-					}
-					if ( !!status.extendedStatus.media.metadata ) {
-						if ( !status.extendedStatus.media.metadata.title ) {
-							db_object.title = status.extendedStatus.media.metadata.title;
-						}
-						if ( !!status.extendedStatus.media.metadata.songName ) {
-							db_object.song_name = status.extendedStatus.media.metadata.songName;
-						}
-						if ( !!status.extendedStatus.media.metadata.artist ) {
-							db_object.artist = status.extendedStatus.media.metadata.artist;
-						}
-						if ( !!status.extendedStatus.media.metadata.albumName ) {
-							db_object.album_name = status.extendedStatus.media.metadata.albumName;
-						}
-					}
-				}
-			}
-			console.log( db_object );
-			db_object = JSON.stringify( db_object );
-			await RedisPushPopToCircularListLength100( redis_key , db_object );
-			await redis_manager.redis.publish( "APPS-STATUSES" , db_object );
-			resolve();
-			return;
-		}
-		catch( error ) { console.log( error ); reject( error ); return; }
-	});
-}
-
-function save_status_twitch( tracking_object ) {
-	return new Promise( async ( resolve , reject ) => {
-		try {
-			if ( !tracking_object ) { resolve(); return; }
-			const redis_key = `APPS.TWITCH.STATUSES.${ tracking_object[ "uuid_redis_key" ] }`;
-			const status = tracking_object.latest_status;
-			let db_object = { app: "twitch" };
-			if ( !!status.statusText ) {
-				db_object.status_text = status.statusText
-			}
-			if ( !!status.playbackRate ) {
-				db_object.playback_rate = status.playbackRate
-			}
-			if ( !!status.playerState ) {
-				db_object.player_state = status.playerState
-			}
-			if ( !!status.volume ) {
-				if ( !!status.volume.level ) {
-					db_object.volume = status.volume.level;
-				}
-				if ( status.volume.muted ) {
-					db_object.muted = status.volume.muted;
-				}
-				else {
-					db_object.muted = false;
-				}
-			}
-			if ( !!status.media ) {
-				if ( !!status.media.streamType ) {
-					db_object.stream_type = status.media.streamType;
-				}
-				if ( !!status.media.contentUrl ) {
-					db_object.m3u8_url = status.media.contentUrl;
-				}
-				else if ( !!status.media.contentId ) {
-					db_object.m3u8_url = status.media.contentId;
-				}
-				if ( !!status.media.duration ) {
-					db_object.duration = status.media.duration;
-				}
-				if ( !!status.media.metadata ) {
-					if ( !!status.media.metadata.subtitle ) {
-						db_object.stream_category = status.media.metadata.subtitle;
-					}
-				}
-				if ( !!status.media.customData.analytics ) {
-					if ( !!status.media.customData.analytics.chromecast_sender ) {
-						db_object.chromecast_sender = status.media.customData.analytics.chromecast_sender;
-					}
-					if ( !!status.media.customData.analytics.login ) {
-						db_object.logged_in_username = status.media.customData.analytics.login;
-					}
-					if ( !!status.media.customData.analytics.subscriber ) {
-						db_object.logged_in_user_is_subscriber = status.media.customData.analytics.subscriber;
-					}
-					if ( !!status.media.customData.analytics.turbo ) {
-						db_object.logged_in_user_is_turbo = status.media.customData.analytics.turbo;
-					}
-				}
-			}
-			if ( !!status.videoInfo ) {
-				db_object.video_info = status.videoInfo;
-			}
-			if ( !!status.repeatMode ) {
-				db_object.repeat_mode = status.repeatMode;
-			}
-			if ( !!status.currentTime ) {
-				db_object.current_time = status.currentTime;
-			}
-			console.log( db_object );
-			db_object = JSON.stringify( db_object );
-			await RedisPushPopToCircularListLength100( redis_key , db_object );
-			await redis_manager.redis.publish( "APPS-STATUSES" , db_object );
-			resolve();
-			return;
-		}
-		catch( error ) { console.log( error ); resolve( false ); return; }
-	});
-}
+// PepeHands https://github.com/request/request/issues/3143
+// monkaHmm  https://github.com/mikeal/bent
 
 function save_status( tracking_object ) {
 	return new Promise( async ( resolve , reject ) => {
 		try {
-			switch( tracking_object[ "session" ][ "appId" ] ) {
-				case "E8C28D3C":
-					await save_status_backdrop( tracking_object );
-					break;
-				case "233637DE":
-					await save_status_youtube( tracking_object );
-					break;
-				case "CC32E753":
-					await save_status_spotify( tracking_object );
-					break;
-				case "C3DE6BC2":
-					await save_status_disney_plus( tracking_object );
-					break;
-				case "B3DCF968":
-					await save_status_twitch( tracking_object );
-					break;
-				default:
-					console.log( `Unknown App ID: ${ tracking_object[ "session" ][ "appId" ] }` );
-					console.log( `App Name == ${ tracking_object[ "session" ][ "displayName" ] }` );
-					console.log( tracking_object.latest_status );
-					await save_status_generic( tracking_object )
-					break;
+			const app_id = tracking_object[ "session" ][ "appId" ];
+			const app_name = tracking_object[ "session" ][ "displayName" ].toLowerCase();
+			console.log( `App ID: ${ app_id }` );
+			console.log( `App Name == ${ app_name }` );
+			let db_object = { app_id: app_id , app_name: app_name , status: tracking_object.latest_status };
+			if ( app_name === "spotify" ) {
+				if ( !!db_object.status.playerState ) {
+					if ( db_object.status.playerState.toLowerCase() == "paused" ) {
+						const htttp_request = bent( 'http://127.0.0.1:9797/commands/spotify-paused' );
+						console.log( htttp_request.status );
+						console.log( htttp_request.statusCode );
+						const http_result = await htttp_request.text();
+						console.log( http_result );
+					}
+				}
 			}
+			console.log( db_object );
+			db_object = JSON.stringify( db_object );
+			const redis_key = `APPS.GENERIC.STATUSES.${ tracking_object[ "uuid_redis_key" ] }`;
+			await RedisPushPopToCircularListLength100( redis_key , db_object );
+			await redis_manager.redis.publish( "APPS-STATUSES" , db_object );
 			resolve();
 			return;
 		}
